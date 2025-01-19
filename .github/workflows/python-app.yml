@@ -27,10 +27,10 @@ jobs:
         pip install -r requirements.txt
 
     - name: Set PYTHONPATH
-      run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> $GITHUB_ENV
+      run: echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
 
     - name: Install project locally
       run: pip install -e .
 
-    - name: Run pytest
+    - name: Run tests
       run: pytest

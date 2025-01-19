@@ -1,21 +1,32 @@
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import pytest
 import pandas as pd
 from agent_app import clean_and_preprocess_data, generate_recommendations
-import sys
-import os
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 def test_clean_and_preprocess_data():
+    # Pripremi testne podatke
     data = {
-        "name": ["Song 1", "Song 2"],
-        "tempo": [120, None],
-        "valence": [0.5, 0.7],
-        "popularity": [70, None],
+        "name": ["Song 1", "Song 2", "Song 3"],
+        "tempo": [120, None, 130],
+        "valence": [0.5, 0.7, 0.6],
+        "popularity": [70, 80, None],
+        "danceability": [0.8, 0.9, None],
+        "energy": [0.7, 0.6, 0.8],
     }
     df = pd.DataFrame(data)
-    processed_df = clean_and_preprocess_data(df)
-    assert processed_df.isnull().sum().sum() == 0  # Ensure no missing values
+
+    # Testiraj funkciju
+    processed_df = clean_and_preprocess_data(df=df)
+
+    # Provjeri da ključni stupci postoje
+    assert 'tempo' in processed_df.columns, "tempo column is missing"
+    assert 'popularity' in processed_df.columns, "popularity column is missing"
+    assert 'valence' in processed_df.columns, "valence column is missing"
+
+    # Provjeri da nema nedostajućih vrijednosti
+    assert processed_df.isnull().sum().sum() == 0, "There are still missing values in the processed DataFrame"
 
 def test_generate_recommendations():
     data = {
