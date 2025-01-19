@@ -1,0 +1,62 @@
+Enter Artist Name,Recommended Songs,timestamp
+eminem,"<table border=""1"" class=""dataframe table table-striped"">
+  <thead>
+    <tr style=""text-align: right;"">
+      <th>Song Name</th>
+      <th>Artists</th>
+      <th>Popularity</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Big Time Sensuality</td>
+      <td>Björk</td>
+      <td>0.44</td>
+    </tr>
+    <tr>
+      <td>Latch</td>
+      <td>Disclosure, Sam Smith</td>
+      <td>0.70</td>
+    </tr>
+    <tr>
+      <td>Not The Only One - Radio Edit</td>
+      <td>Bonnie Raitt</td>
+      <td>0.38</td>
+    </tr>
+    <tr>
+      <td>Broken &amp; Beautiful</td>
+      <td>Kelly Clarkson</td>
+      <td>0.72</td>
+    </tr>
+    <tr>
+      <td>Please</td>
+      <td>Nine Inch Nails</td>
+      <td>0.37</td>
+    </tr>
+    <tr>
+      <td>Do Your Dance</td>
+      <td>Rose Royce</td>
+      <td>0.26</td>
+    </tr>
+    <tr>
+      <td>Otra Noche (Another Night)</td>
+      <td>Proyecto Uno</td>
+      <td>0.50</td>
+    </tr>
+    <tr>
+      <td>Love Has Come Around</td>
+      <td>Donald Byrd</td>
+      <td>0.35</td>
+    </tr>
+    <tr>
+      <td>Galaxy</td>
+      <td>War</td>
+      <td>0.43</td>
+    </tr>
+    <tr>
+      <td>Soon As I Get Paid</td>
+      <td>Keb' Mo'</td>
+      <td>0.37</td>
+    </tr>
+  </tbody>
+</table>",2025-01-17 20:22:56.037917

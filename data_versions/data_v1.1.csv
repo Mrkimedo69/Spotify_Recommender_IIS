@@ -1,0 +1,4 @@
+name,artists,danceability,energy,tempo,valence,loudness,popularity
+Song A,['Artist 1'],0.8,0.7,120,0.5,-5,0.9
+Song B,['Artist 2'],0.6,0.5,130,0.4,-6,0.7
+Song C,['Artist 3'],0.7,0.8,125,0.6,-4,0.8
