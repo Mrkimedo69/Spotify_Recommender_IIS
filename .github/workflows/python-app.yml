@@ -32,5 +32,10 @@ jobs:
     - name: Install project locally
       run: pip install -e .
 
+    - name: Login to Hugging Face
+      run: huggingface-cli login --token $HF_TOKEN
+      env:
+        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+
     - name: Run tests
       run: pytest
