@@ -1,6 +1,11 @@
 import pytest
 import pandas as pd
 from agent_app import clean_and_preprocess_data
+import sys
+import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 
 def test_clean_and_preprocess_data_removes_nulls():
     data = {
