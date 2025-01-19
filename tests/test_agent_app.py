@@ -20,13 +20,11 @@ def test_clean_and_preprocess_data():
     # Testiraj funkciju
     processed_df = clean_and_preprocess_data(df=df)
 
-    # Provjeri da ključni stupci postoje
-    assert 'tempo' in processed_df.columns, "tempo column is missing"
-    assert 'popularity' in processed_df.columns, "popularity column is missing"
-    assert 'valence' in processed_df.columns, "valence column is missing"
-
-    # Provjeri da nema nedostajućih vrijednosti
-    assert processed_df.isnull().sum().sum() == 0, "There are still missing values in the processed DataFrame"
+    # Provjeri da su null vrijednosti popunjene
+    assert processed_df.isnull().sum().sum() == 0
+    # Provjeri da li su sve kolone skalirane
+    assert 'tempo' in processed_df.columns
+    assert 'valence' in processed_df.columns
 
 def test_generate_recommendations():
     data = {

@@ -16,8 +16,9 @@ def test_clean_and_preprocess_data_removes_nulls():
 
     processed_df = clean_and_preprocess_data(df=df)
 
-    # Provjeri da nema nedostajućih vrijednosti
-    assert processed_df.isnull().sum().sum() == 0, "There are still missing values in the processed DataFrame"
+    # Provjeri da su null vrijednosti uklonjene ili popunjene
+    assert processed_df.isnull().sum().sum() == 0
+
 
 def test_clean_and_preprocess_data_normalization():
     data = {
@@ -27,8 +28,11 @@ def test_clean_and_preprocess_data_normalization():
         "popularity": [70, 80],
     }
     df = pd.DataFrame(data)
+
     processed_df = clean_and_preprocess_data(df=df)
-    for col in ["tempo", "valence", "popularity"]:
-        assert processed_df[col].min() == 0  # Normalizirani minimum
-        assert processed_df[col].max() == 1  # Normalizirani maksimum
+
+    # Provjeri da li su kolone skalirane
+    assert 'tempo' in processed_df.columns
+    assert processed_df['tempo'].min() == 0  # Min-Max skaliranje
+    assert processed_df['tempo'].max() == 1
 

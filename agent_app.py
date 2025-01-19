@@ -14,8 +14,11 @@ from model_management import check_model_retraining, log_performance
 from data_versioning import load_dataset_version
 
 # Function: Data Cleaning and Preprocessing
-def clean_and_preprocess_data(file_path):
-    df = pd.read_csv(file_path)
+def clean_and_preprocess_data(file_path=None, df=None):
+    if df is None and file_path is None:
+        raise ValueError("Either 'file_path' or 'df' must be provided.")
+    if df is None:
+        df = pd.read_csv(file_path)
 
     # Remove columns and rows with excessive missing values
     missing_row_threshold = 0.5
@@ -35,19 +38,25 @@ def clean_and_preprocess_data(file_path):
     z_score_features = ['danceability', 'energy']
     log_transform_features = ['loudness']
 
-    # Min-Max Scaling
-    scaler_min_max = MinMaxScaler()
-    df[min_max_features] = scaler_min_max.fit_transform(df[min_max_features])
+    # Min-Max Scaling (provjera da li kolone postoje)
+    existing_min_max_features = [col for col in min_max_features if col in df.columns]
+    if existing_min_max_features:
+        scaler_min_max = MinMaxScaler()
+        df[existing_min_max_features] = scaler_min_max.fit_transform(df[existing_min_max_features])
 
-    # Z-score Standardization
-    scaler_z_score = StandardScaler()
-    df[z_score_features] = scaler_z_score.fit_transform(df[z_score_features])
+    # Z-score Standardization (provjera da li kolone postoje)
+    existing_z_score_features = [col for col in z_score_features if col in df.columns]
+    if existing_z_score_features:
+        scaler_z_score = StandardScaler()
+        df[existing_z_score_features] = scaler_z_score.fit_transform(df[existing_z_score_features])
 
-    # Log Transformation
+    # Log Transformation (provjera da li kolone postoje)
     for feature in log_transform_features:
-        df[feature] = np.log1p(df[feature] - df[feature].min() + 1)
+        if feature in df.columns:
+            df[feature] = np.log1p(df[feature] - df[feature].min() + 1)
 
     return df
+
 
 # Function: Evaluate Precision
 def evaluate_similarity_precision(df, playlist_indices, recommended_indices, features, tolerance=0.1):
