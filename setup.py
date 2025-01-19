@@ -12,9 +12,12 @@ setup(
     description='Spotify song recommender system using machine learning and data processing techniques.',
     packages=find_packages(),
     include_package_data=True,
-    install_requires=parse_requirements("requirements.txt"),  # Učitaj sve iz requirements.txt
+    install_requires=[
+        parse_requirements("requirements.txt"),  # Učitaj sve iz requirements.txt
+        "typer==0.15.1",  # Očistite nepotrebne dodatke poput 'all'
+    ],
     extras_require={
-        "windows": ["pywin32==308"],  # Dodaj specifične ovisnosti za Windows ako treba
+        "dev": ["pytest", "flake8"],
     },
     entry_points={
         'console_scripts': [
