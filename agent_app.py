@@ -6,7 +6,6 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.metrics import precision_score
 import gradio as gr
-import subprocess
 from performance_visualization import parse_performance_log, plot_performance
 from training_pipeline import training_pipeline
 from model_management import check_model_retraining, log_performance
@@ -19,37 +18,22 @@ def clean_and_preprocess_data(file_path=None, df=None):
     if df is None:
         df = pd.read_csv(file_path)
 
-    # Remove columns and rows with excessive missing values
-    missing_row_threshold = 0.5
-    missing_col_threshold = 0.5
-    df = df.loc[:, df.isnull().mean() < missing_col_threshold]
-    df = df[df.isnull().mean(axis=1) < missing_row_threshold]
-
-    # Fill missing values for numerical columns
-    for col in df.select_dtypes(include=['float64', 'int64']).columns:
-        df[col] = df[col].fillna(df[col].mean())
-
-    # Drop duplicate rows based on song name
     df = df.drop_duplicates(subset=['name'], keep='first').reset_index(drop=True)
 
-    # Normalization and transformations
     min_max_features = ['tempo', 'valence', 'popularity']
     z_score_features = ['danceability', 'energy']
     log_transform_features = ['loudness']
 
-    # Min-Max Scaling (check if columns exist)
     existing_min_max_features = [col for col in min_max_features if col in df.columns]
     if existing_min_max_features:
         scaler_min_max = MinMaxScaler()
         df[existing_min_max_features] = scaler_min_max.fit_transform(df[existing_min_max_features])
 
-    # Z-score Standardization (check if columns exist)
     existing_z_score_features = [col for col in z_score_features if col in df.columns]
     if existing_z_score_features:
         scaler_z_score = StandardScaler()
         df[existing_z_score_features] = scaler_z_score.fit_transform(df[existing_z_score_features])
 
-    # Log Transformation (check if columns exist)
     for feature in log_transform_features:
         if feature in df.columns:
             df[feature] = np.log1p(df[feature] - df[feature].min() + 1)
@@ -88,23 +72,27 @@ def generate_recommendations(df, search_artist, search_song, features, top_n=10)
     if not playlist_indices:
         return pd.DataFrame(), f"Sorry, no results found for '{search_artist or search_song}'.", [], []
 
-    # Calculate average features of the playlist
+    # Prosječne značajke za playlistu
     playlist_features = df.iloc[playlist_indices][features]
     average_playlist_features = playlist_features.mean(axis=0).values.reshape(1, -1)
 
-    # Calculate similarity scores
-    df = df.copy()  # Ensure changes do not affect the original DataFrame
-    similarity_scores = cosine_similarity(average_playlist_features, df[features]).flatten()
-    df.loc[:, 'similarity'] = similarity_scores
+    # Kopiraj DataFrame za sigurnu obradu
+    df_copy = df.copy()
 
-    # Sort by similarity and remove duplicates
-    df = df.sort_values(by='similarity', ascending=False)
-    recommended_indices = df.index.difference(playlist_indices)[:top_n]
-    recommended_songs = df.loc[recommended_indices]
+    # Računaj sličnost i filtriraj preporuke
+    df_copy['similarity'] = cosine_similarity(average_playlist_features, df_copy[features]).flatten()
 
-    # Generate explanations
+    # Ukloni pjesme iz trenutne playliste
+    df_copy = df_copy[~df_copy.index.isin(playlist_indices)]
+
+    # Sortiraj prema sličnosti
+    df_copy = df_copy.sort_values(by='similarity', ascending=False)
+
+    # Odaberi top_n preporuka
+    recommended_songs = df_copy.head(top_n)
+
+    # Generiraj objašnjenja
     explanations = [f"This song is recommended because of its similarity in {', '.join(features)}." for _ in range(len(recommended_songs))]
-
     return recommended_songs, "", playlist_indices, explanations
 
 # GRadio Interface
@@ -195,7 +183,7 @@ def main():
     features = ['danceability', 'energy', 'tempo', 'valence', 'loudness']
 
     # Initialize current dataset
-    current_size = 10000
+    current_size = 100000
     increment = 10000
     current_df = df.head(current_size)
 
