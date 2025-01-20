@@ -2,7 +2,7 @@
 venv/
 venvsource/
 
-# Cache
+# Python Cache
 *.cache
 *.pyc
 *.pyo
@@ -11,15 +11,14 @@ __pycache__/
 # Gradio i pytest privremene datoteke
 .gradio/
 .pytest_cache/
-venv/
-*.pyc
-__pycache__/
+.mypy_cache/
+
+# Operativni sustav privremene datoteke
 .DS_Store
 *.log
 *.tmp
-.pytest_cache/
-.mypy_cache/
+
+# IDE postavke i datoteke
 .vscode/
 .idea/
-venv/
-node_modules/
+
