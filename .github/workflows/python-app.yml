@@ -57,4 +57,4 @@ jobs:
       run: huggingface-cli login --token ${{ secrets.HF_TOKEN }}
 
     - name: Deploy Gradio App
-      run: gradio deploy
+      run: gradio deploy --title "Spotify Recommender"
