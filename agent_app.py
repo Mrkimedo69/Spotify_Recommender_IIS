@@ -18,28 +18,47 @@ def clean_and_preprocess_data(file_path=None, df=None):
     if df is None:
         df = pd.read_csv(file_path)
 
-    df = df.drop_duplicates(subset=['name'], keep='first').reset_index(drop=True)
+    # Remove columns and rows with excessive missing values
+    missing_row_threshold = 0.5
+    missing_col_threshold = 0.5
+    df = df.loc[:, df.isnull().mean() < missing_col_threshold]
+    df = df[df.isnull().mean(axis=1) < missing_row_threshold]
 
+    # Fill missing values for numerical columns
+    for col in df.select_dtypes(include=['float64', 'int64']).columns:
+        df[col] = df[col].fillna(df[col].mean())
+
+    # Fill missing values for categorical columns
+    for col in df.select_dtypes(include=['object']).columns:
+        df[col] = df[col].fillna('Unknown')
+
+    # Drop duplicate rows based on song name
+    if 'name' in df.columns:
+        df = df.drop_duplicates(subset=['name'], keep='first').reset_index(drop=True)
+
+    # Normalization and transformations
     min_max_features = ['tempo', 'valence', 'popularity']
     z_score_features = ['danceability', 'energy']
     log_transform_features = ['loudness']
 
+    # Min-Max Scaling (check if columns exist)
     existing_min_max_features = [col for col in min_max_features if col in df.columns]
     if existing_min_max_features:
         scaler_min_max = MinMaxScaler()
         df[existing_min_max_features] = scaler_min_max.fit_transform(df[existing_min_max_features])
 
+    # Z-score Standardization (check if columns exist)
     existing_z_score_features = [col for col in z_score_features if col in df.columns]
     if existing_z_score_features:
         scaler_z_score = StandardScaler()
         df[existing_z_score_features] = scaler_z_score.fit_transform(df[existing_z_score_features])
 
+    # Log Transformation (check if columns exist)
     for feature in log_transform_features:
         if feature in df.columns:
             df[feature] = np.log1p(df[feature] - df[feature].min() + 1)
 
     return df
-
 # Function: Evaluate Precision
 def evaluate_similarity_precision(df, playlist_indices, recommended_indices, features, tolerance=0.1):
     if not playlist_indices or not recommended_indices:

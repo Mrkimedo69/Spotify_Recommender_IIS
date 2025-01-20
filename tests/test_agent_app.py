@@ -6,7 +6,6 @@ import pandas as pd
 from agent_app import clean_and_preprocess_data, generate_recommendations
 
 def test_clean_and_preprocess_data():
-    # Pripremi testne podatke
     data = {
         "name": ["Song 1", "Song 2", "Song 3"],
         "tempo": [120, None, 130],
@@ -17,14 +16,14 @@ def test_clean_and_preprocess_data():
     }
     df = pd.DataFrame(data)
 
-    # Testiraj funkciju
+    # Test funkcije
     processed_df = clean_and_preprocess_data(df=df)
 
-    # Provjeri da su null vrijednosti popunjene
+    # Provjeri da nema null vrijednosti
     assert processed_df.isnull().sum().sum() == 0
-    # Provjeri da li su sve kolone skalirane
-    assert 'tempo' in processed_df.columns
-    assert 'valence' in processed_df.columns
+
+    # Provjeri da su duplicirani redovi uklonjeni
+    assert processed_df['name'].duplicated().sum() == 0
 
 def test_generate_recommendations():
     data = {

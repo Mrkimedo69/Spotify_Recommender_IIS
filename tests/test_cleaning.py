@@ -16,7 +16,7 @@ def test_clean_and_preprocess_data_removes_nulls():
 
     processed_df = clean_and_preprocess_data(df=df)
 
-    # Provjeri da su null vrijednosti uklonjene ili popunjene
+    # Provjeri da nema null vrijednosti
     assert processed_df.isnull().sum().sum() == 0
 
 
