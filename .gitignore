@@ -11,3 +11,15 @@ __pycache__/
 # Gradio i pytest privremene datoteke
 .gradio/
 .pytest_cache/
+venv/
+*.pyc
+__pycache__/
+.DS_Store
+*.log
+*.tmp
+.pytest_cache/
+.mypy_cache/
+.vscode/
+.idea/
+venv/
+node_modules/
