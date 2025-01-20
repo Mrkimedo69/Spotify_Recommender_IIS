@@ -118,7 +118,7 @@ def gradio_interface(search_artist, search_song, tolerance, current_size, increm
     # Adjust dataset size dynamically
     if current_size > len(df):
         current_size = len(df)
-    current_df = df.head(current_size)
+    current_df = df.head(int(current_size))
 
     # Generate recommendations
     recommended_songs, rec_error, playlist_indices, explanations = generate_recommendations(
