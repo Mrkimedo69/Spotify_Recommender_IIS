@@ -1,0 +1,11 @@
+README.md
+setup.py
+Spotify_Recommender.egg-info/PKG-INFO
+Spotify_Recommender.egg-info/SOURCES.txt
+Spotify_Recommender.egg-info/dependency_links.txt
+Spotify_Recommender.egg-info/entry_points.txt
+Spotify_Recommender.egg-info/requires.txt
+Spotify_Recommender.egg-info/top_level.txt
+tests/__init__.py
+tests/test_agent_app.py
+tests/test_cleaning.py

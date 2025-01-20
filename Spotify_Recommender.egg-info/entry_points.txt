@@ -1,0 +1,2 @@
+[console_scripts]
+spotify-recommender = agent_app:main

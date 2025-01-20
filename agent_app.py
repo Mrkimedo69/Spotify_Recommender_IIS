@@ -8,7 +8,6 @@ from sklearn.metrics import precision_score
 import gradio as gr
 import subprocess
 from performance_visualization import parse_performance_log, plot_performance
-subprocess.run(["python", "data_monitoring.py"])
 from training_pipeline import training_pipeline
 from model_management import check_model_retraining, log_performance
 from data_versioning import load_dataset_version
@@ -38,25 +37,24 @@ def clean_and_preprocess_data(file_path=None, df=None):
     z_score_features = ['danceability', 'energy']
     log_transform_features = ['loudness']
 
-    # Min-Max Scaling (provjera da li kolone postoje)
+    # Min-Max Scaling (check if columns exist)
     existing_min_max_features = [col for col in min_max_features if col in df.columns]
     if existing_min_max_features:
         scaler_min_max = MinMaxScaler()
         df[existing_min_max_features] = scaler_min_max.fit_transform(df[existing_min_max_features])
 
-    # Z-score Standardization (provjera da li kolone postoje)
+    # Z-score Standardization (check if columns exist)
     existing_z_score_features = [col for col in z_score_features if col in df.columns]
     if existing_z_score_features:
         scaler_z_score = StandardScaler()
         df[existing_z_score_features] = scaler_z_score.fit_transform(df[existing_z_score_features])
 
-    # Log Transformation (provjera da li kolone postoje)
+    # Log Transformation (check if columns exist)
     for feature in log_transform_features:
         if feature in df.columns:
             df[feature] = np.log1p(df[feature] - df[feature].min() + 1)
 
     return df
-
 
 # Function: Evaluate Precision
 def evaluate_similarity_precision(df, playlist_indices, recommended_indices, features, tolerance=0.1):
@@ -174,12 +172,6 @@ def gradio_interface(search_artist, search_song, tolerance, current_size, increm
 
 # Function to load the latest dataset version
 def load_latest_dataset():
-    """
-    Load the latest dataset version from the versioning system.
-
-    Returns:
-        pd.DataFrame: The latest dataset.
-    """
     versions = [f for f in os.listdir("data_versions/") if f.startswith("data_") and f.endswith(".csv")]
     if not versions:
         raise FileNotFoundError("No dataset versions found.")
@@ -192,17 +184,17 @@ def load_latest_dataset():
     print(f"Loaded dataset version {latest_version} with metadata: {metadata}")
     return df
 
-
-if __name__ == "__main__":
-    # Path to dataset
+def main():
+    global df, features, current_df
     file_path = 'data.csv'
 
     # Clean and preprocess data
     df = clean_and_preprocess_data(file_path)
+
     # Define features
     features = ['danceability', 'energy', 'tempo', 'valence', 'loudness']
 
-    # Initialize dataset size
+    # Initialize current dataset
     current_size = 10000
     increment = 10000
     current_df = df.head(current_size)
@@ -216,8 +208,8 @@ if __name__ == "__main__":
             gr.Textbox(label="Enter Artist Name (Optional)"),
             gr.Textbox(label="Enter Song Name (Optional)"),
             gr.Slider(minimum=0.05, maximum=0.2, step=0.05, label="Tolerance (%)", value=0.1),
-            gr.Number(label="Current Data Size", value=10000),
-            gr.Number(label="Increment Size", value=10000),
+            gr.Number(label="Current Data Size", value=current_size),
+            gr.Number(label="Increment Size", value=increment),
         ],
         outputs=[
             gr.HTML(label="Recommendations"),
@@ -226,3 +218,6 @@ if __name__ == "__main__":
         title="Spotify Recommender",
         description="Enter either an artist's name or a song name to get song recommendations and explanations for the recommendations. Adjust the dataset size dynamically."
     ).launch(share=True)
+
+if __name__ == "__main__":
+    main()
