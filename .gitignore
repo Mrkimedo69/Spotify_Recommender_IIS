@@ -1,7 +1,13 @@
+# Virtual Environment
 venv/
+venvsource/
+
+# Cache
+*.cache
 *.pyc
+*.pyo
 __pycache__/
-logs/
-*.log
-.DS_Store
-.idea/
+
+# Gradio i pytest privremene datoteke
+.gradio/
+.pytest_cache/

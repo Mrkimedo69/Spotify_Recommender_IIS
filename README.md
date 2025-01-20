@@ -1,8 +1,7 @@
-# Spotify_Recommender_IIS
-
-Ovo je projekt za preporuke pjesama na temelju Spotify podataka koristeći Gradio sučelje.
-
-## Postavljanje
-1. Klonirajte repozitorij:
-   ```bash
-   git clone https://github.com/yourusername/Spotify_Recommender_IIS.git
+---
+title: Spotify_Recommender
+app_file: agent_app.py
+sdk: gradio
+sdk_version: 4.0.0
+---
+Ovo je projekt za preporuke pjesama na temelju Spotify podataka koristeci Gradio sucelje.
