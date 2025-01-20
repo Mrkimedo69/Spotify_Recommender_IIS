@@ -6,4 +6,5 @@ matplotlib==3.6.3
 huggingface-hub==0.14.1
 typer==0.15.1
 fpdf==1.7.2
+pytest==8.3.4
 gradio
