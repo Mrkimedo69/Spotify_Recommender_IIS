@@ -58,4 +58,4 @@ jobs:
 
     - name: Deploy Gradio aplikacije
       run: |
-        gradio deploy --title "Spotify Recommender" agent_app.py
+        gradio deploy --title "Spotify Recommender"
