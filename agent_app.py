@@ -151,10 +151,8 @@ def generate_recommendations_tsne(df, search_artist, search_song, features, top_
     pca = PCA(n_components=n_components)
     reduced_features = pca.fit_transform(df_sample[features])
 
-    print("Starting T-SNE...")
-    tsne = TSNE(n_components=2, perplexity=30, random_state=42, n_iter=500)
+    tsne = TSNE(n_components=2, perplexity=30, random_state=42, max_iter=500)
     X_embedded = tsne.fit_transform(reduced_features)
-    print("Finished T-SNE...")
 
     df_sample['tsne_x'] = X_embedded[:, 0]
     df_sample['tsne_y'] = X_embedded[:, 1]
@@ -174,11 +172,34 @@ def generate_recommendations_tsne(df, search_artist, search_song, features, top_
     explanations = [f"This song is recommended because it is close in T-SNE space to your search." for _ in range(len(recommended_songs))]
     return recommended_songs, "", playlist_indices, explanations
 
-def compare_methods(df, search_artist, search_song, features, top_n=10):
+def compare_methods(df, search_artist, search_song, features, top_n=10, tolerance=0.1):
     # Generiranje preporuka za sve metode
     recommended_cosine, _, cosine_indices, _ = generate_recommendations(df, search_artist, search_song, features, top_n)
     recommended_hierarchical, _, hierarchical_indices, _ = generate_recommendations_hierarchical(df, search_artist, search_song, features, top_n)
     recommended_tsne, _, tsne_indices, _ = generate_recommendations_tsne(df, search_artist, search_song, features, top_n)
+
+    # Izračun preciznosti svake metode
+    precision_cosine = evaluate_similarity_precision(
+        df=df,
+        playlist_indices=cosine_indices,
+        recommended_indices=recommended_cosine.index.tolist(),
+        features=features,
+        tolerance=tolerance
+    )
+    precision_hierarchical = evaluate_similarity_precision(
+        df=df,
+        playlist_indices=hierarchical_indices,
+        recommended_indices=recommended_hierarchical.index.tolist(),
+        features=features,
+        tolerance=tolerance
+    )
+    precision_tsne = evaluate_similarity_precision(
+        df=df,
+        playlist_indices=tsne_indices,
+        recommended_indices=recommended_tsne.index.tolist(),
+        features=features,
+        tolerance=tolerance
+    )
 
     # Izrada tablice usporedbe
     max_length = max(len(recommended_cosine), len(recommended_hierarchical), len(recommended_tsne))
@@ -229,77 +250,49 @@ def compare_methods(df, search_artist, search_song, features, top_n=10):
         log_file.write(comparison_df.to_string(index=False))
         log_file.write("\n" + "-"*80 + "\n")
 
-    print("\nComparison Results:")
-    print(comparison_df)
+        # Zapis preciznosti svake metode
+        log_file.write("\nPrecision Scores:\n")
+        log_file.write("-"*50 + "\n")
+        log_file.write(f"Cosine Similarity Precision: {precision_cosine:.2f}\n")
+        log_file.write(f"Hierarchical Clustering Precision: {precision_hierarchical:.2f}\n")
+        log_file.write(f"T-SNE Precision: {precision_tsne:.2f}\n")
+        log_file.write("\n" + "="*80 + "\n")
 
     return recommended_cosine, comparison_df
 
-# GRadio Interface
 def gradio_interface(search_artist, search_song, tolerance, current_size, increment):
-    LOG_PERFORMANCE_PATH = os.path.abspath("logs/performance.log")
     global current_df, df
 
     if not search_artist and not search_song:
         return "<b>Please enter either an artist's name or a song name.</b>", ""
 
-    # Adjust dataset size dynamically
     if current_size > len(df):
         current_size = len(df)
     current_df = df.head(int(current_size))
 
-    # Generate recommendations
     recommended_songs, rec_error, playlist_indices, explanations = generate_recommendations(
         current_df, search_artist, search_song, features, top_n=10
     )
 
-    # Compare methods and log results
-    recommended_cosine, comparison_df = compare_methods(
-        current_df, search_artist, search_song, features, top_n=10
-    )
+    compare_methods(current_df, search_artist, search_song, features, top_n=10)
+
     if rec_error:
         return f"<b>{rec_error}</b>", ""
 
-    # Calculate Precision
-    precision = evaluate_similarity_precision(
-        df=current_df,
-        playlist_indices=playlist_indices,
-        recommended_indices=recommended_songs.index.tolist(),
-        features=features,
-        tolerance=tolerance,
-    )
-    log_performance(version="1.1", precision=precision, description="Updated version of the model.")
-
-    try:
-        df_performance = parse_performance_log(LOG_PERFORMANCE_PATH)
-        plot_performance(df_performance)
-    except Exception as e:
-        print(f"Error generating performance visualization: {e}")
-
-    # Format recommendations with explanations as tooltips
     recommended_songs['Explanation'] = explanations
     recommended_songs_output = recommended_songs[['name', 'artists', 'popularity', 'Explanation']].copy()
     recommended_songs_output['artists'] = recommended_songs_output['artists'].apply(lambda x: ', '.join(eval(x)))
     recommended_songs_output_html = recommended_songs_output.to_html(index=False, escape=False, classes='table table-striped')
 
-    # Add legends dynamically
-    if search_artist:
-        legend = """<table class='table table-striped' style='width:90%;'>
+    legend = """<table class='table table-striped' style='width:90%;'>
                     <tr><th>Popularity Range</th><th>Description</th></tr>
                     <tr><td>0.76-1.0</td><td>Very Popular</td></tr>
                     <tr><td>0.51-0.75</td><td>Popular</td></tr>
                     <tr><td>0.26-0.50</td><td>Moderate</td></tr>
                     <tr><td>0-0.25</td><td>Less Popular</td></tr>
-                  </table>"""
-    else:  # For songs
-        legend = """<table class='table table-striped' style='width:90%;'>
-                    <tr><th>Similarity Score</th><th>Description</th></tr>
-                    <tr><td>0.8-1.0</td><td>Highly Similar</td></tr>
-                    <tr><td>0.6-0.79</td><td>Moderately Similar</td></tr>
-                    <tr><td>0.4-0.59</td><td>Slightly Similar</td></tr>
-                    <tr><td>0-0.39</td><td>Low Similarity</td></tr>
-                  </table>"""
+                </table>"""
 
-    return f"{recommended_songs_output_html}<br><br>{legend}<br><br><b>Similarity-based Precision:</b> {precision:.2f}", ""
+    return f"{recommended_songs_output_html}<br><br>{legend}", ""
 
 def main():
     global df, features
@@ -315,7 +308,7 @@ def main():
             gr.Textbox(label="Enter Artist Name (Optional)"),
             gr.Textbox(label="Enter Song Name (Optional)"),
             gr.Slider(minimum=0.01, maximum=0.2, step=0.01, label="Tolerance (%)", value=0.05),
-            gr.Number(label="Current Data Size", value=1000),
+            gr.Number(label="Current Data Size", value=100000),
             gr.Number(label="Increment Size", value=500),
         ],
         outputs=[

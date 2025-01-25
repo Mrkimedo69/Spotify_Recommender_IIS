@@ -61,3 +61,11 @@ That Was Your Mother (with Good Rockin' Doopsie & The Twisters)               Re
                                                            FFYL                    ADHD                            Cool Dry Place
                                            When U Love Somebody            She Hates Me            Diesel Smoke, Dangerous Curves
 --------------------------------------------------------------------------------
+
+Precision Scores:
+--------------------------------------------------
+Cosine Similarity Precision: 1.00
+Hierarchical Clustering Precision: 0.80
+T-SNE Precision: 1.00
+
+================================================================================
