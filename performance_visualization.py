@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-# Paths
 LOG_PERFORMANCE_PATH = "logs/performance.log"
 
 def parse_performance_log(log_path):
@@ -33,7 +32,6 @@ def parse_performance_log(log_path):
 
 
 def plot_performance(df):
-    # Pretvori u string za `x` os ako je potrebno
     df['version'] = df['version'].astype(str)
     
     plt.figure(figsize=(8, 6))
@@ -47,7 +45,6 @@ def plot_performance(df):
     plt.show()
     
 if __name__ == "__main__":
-    # Parse the performance log
     try:
         df_performance = parse_performance_log(LOG_PERFORMANCE_PATH)
         print(df_performance)

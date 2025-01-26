@@ -9,17 +9,23 @@ import gradio as gr
 from performance_visualization import parse_performance_log, plot_performance
 from training_pipeline import training_pipeline
 from model_management import check_model_retraining, log_performance
-from data_versioning import load_dataset_version
+from performance_report import generate_performance_report
+from data_versioning import save_dataset_version
+from data_monitoring import detect_data_changes, calculate_baseline_stats
+from datetime import datetime
 from sklearn.manifold import TSNE
 from scipy.cluster.hierarchy import linkage, fcluster
 import matplotlib
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 import warnings
 warnings.filterwarnings("ignore", message=".*LOKY_MAX_CPU_COUNT.*")
 import os
 os.environ["LOKY_MAX_CPU_COUNT"] = "4"
+
+BASELINE_STATS_PATH = "baseline_stats.json"
+LOG_PERFORMANCE_PATH = "logs/performance.log"
+REPORT_OUTPUT_PATH = "reports/performance_report.pdf"
 
 def clean_and_preprocess_data(file_path=None, df=None):
     if df is None and file_path is None:
@@ -173,12 +179,10 @@ def generate_recommendations_tsne(df, search_artist, search_song, features, top_
     return recommended_songs, "", playlist_indices, explanations
 
 def compare_methods(df, search_artist, search_song, features, top_n=10, tolerance=0.1):
-    # Generiranje preporuka za sve metode
     recommended_cosine, _, cosine_indices, _ = generate_recommendations(df, search_artist, search_song, features, top_n)
     recommended_hierarchical, _, hierarchical_indices, _ = generate_recommendations_hierarchical(df, search_artist, search_song, features, top_n)
     recommended_tsne, _, tsne_indices, _ = generate_recommendations_tsne(df, search_artist, search_song, features, top_n)
 
-    # Izračun preciznosti svake metode
     precision_cosine = evaluate_similarity_precision(
         df=df,
         playlist_indices=cosine_indices,
@@ -201,7 +205,6 @@ def compare_methods(df, search_artist, search_song, features, top_n=10, toleranc
         tolerance=tolerance
     )
 
-    # Izrada tablice usporedbe
     max_length = max(len(recommended_cosine), len(recommended_hierarchical), len(recommended_tsne))
     cosine_names = list(recommended_cosine['name'].values) if not recommended_cosine.empty else []
     hierarchical_names = list(recommended_hierarchical['name'].values) if not recommended_hierarchical.empty else []
@@ -221,13 +224,11 @@ def compare_methods(df, search_artist, search_song, features, top_n=10, toleranc
     if not os.path.exists(logs_dir):
         os.makedirs(logs_dir)
 
-    # Brisanje starog sadržaja prije pisanja novih logova
     log_file_path = os.path.join(logs_dir, "recommendation_logs.txt")
-    with open(log_file_path, "w", encoding="utf-8") as log_file:  # "w" mode briše postojeći sadržaj
+    with open(log_file_path, "w", encoding="utf-8") as log_file:
         log_file.write(f"\nSearch Artist: {search_artist}, Search Song: {search_song}\n")
         log_file.write("="*80 + "\n\n")
 
-        # Zapis preporuka po metodama
         for method_name, recommendations in [
             ("Cosine Similarity", recommended_cosine),
             ("Hierarchical Clustering", recommended_hierarchical),
@@ -244,13 +245,11 @@ def compare_methods(df, search_artist, search_song, features, top_n=10, toleranc
                 log_file.write("No recommendations found.\n")
             log_file.write("\n")
 
-        # Zapis tablice usporedbe
         log_file.write("Comparison Results:\n")
         log_file.write("-"*50 + "\n")
         log_file.write(comparison_df.to_string(index=False))
         log_file.write("\n" + "-"*80 + "\n")
 
-        # Zapis preciznosti svake metode
         log_file.write("\nPrecision Scores:\n")
         log_file.write("-"*50 + "\n")
         log_file.write(f"Cosine Similarity Precision: {precision_cosine:.2f}\n")
@@ -294,11 +293,73 @@ def gradio_interface(search_artist, search_song, tolerance, current_size, increm
 
     return f"{recommended_songs_output_html}<br><br>{legend}", ""
 
+def check_model_retraining(changes, retrain_threshold=0.2):
+    num_changes = sum(len(v) if isinstance(v, list) else 1 for v in changes.values())
+    return num_changes > retrain_threshold
+def load_and_visualize_performance(log_path="logs/performance.log"):
+    try:
+        df_performance = parse_performance_log(log_path)
+        plot_performance(df_performance)
+        return "Performance visualization created successfully."
+    except FileNotFoundError:
+        return "Performance log file not found. No visualization created."
+    except Exception as e:
+        return f"Error during visualization: {e}"
+
+
 def main():
     global df, features
     file_path = 'data.csv'
     df = clean_and_preprocess_data(file_path)
     features = ['danceability', 'energy', 'tempo', 'valence', 'loudness']
+
+    if os.path.exists(BASELINE_STATS_PATH):
+        with open(BASELINE_STATS_PATH, "r") as f:
+            baseline_stats = json.load(f)
+    else: 
+        baseline_stats = None
+        
+    current_stats = calculate_baseline_stats(df)
+
+    data_changes = detect_data_changes(baseline_stats, current_stats) if baseline_stats else {}
+
+    if data_changes:
+        print("Dataset changes detected. Checking if retraining is required...")
+        version = f"v{datetime.now().strftime('%Y%m%d%H%M%S')}"
+
+        with open("logs/data_changes.log", "a") as log_file:
+            log_file.write(f"\nDetected changes at {datetime.now()}:\n")
+            log_file.write(json.dumps(data_changes, indent=4))
+            log_file.write("\n" + "="*50 + "\n")
+
+        save_dataset_version(df, version=version, description="Dataset updated due to changes.")
+        print(f"Dataset version {version} saved and logged successfully.")
+
+        with open("logs/data_version.log", "r") as log_file:
+            print("Current data version log:")
+            print(log_file.read())
+
+        retraining_required = check_model_retraining(data_changes, threshold=2)
+        if retraining_required:
+            print("Significant changes detected. Initiating model retraining...")
+            trained_model, precision = training_pipeline(df, features, version=version, description="Retrained due to dataset changes.")
+            
+            log_performance(version=version, precision=precision, description="Retraining complete.")
+            print(f"Model retrained and logged under version {version}.")
+
+            vis_message = load_and_visualize_performance()
+            print(vis_message)
+        else:
+            print("No significant changes detected. Model retraining not required.")
+
+        with open(BASELINE_STATS_PATH, "w") as f:
+            json.dump(current_stats, f, indent=4)
+    else:
+        print("No significant changes detected in the dataset. Using existing model.")
+
+    print("Generating performance report...")
+    generate_performance_report(LOG_PERFORMANCE_PATH, REPORT_OUTPUT_PATH)
+    print("Performance report generation complete.")
 
     gr.Interface(
         fn=lambda search_artist, search_song, tolerance, current_size, increment: gradio_interface(
@@ -318,6 +379,6 @@ def main():
         title="Spotify Recommender",
         description="Enter either an artist's name or a song name to get song recommendations and explanations for the recommendations. Adjust the dataset size dynamically."
     ).launch(share=True)
-
+    
 if __name__ == "__main__":
     main()

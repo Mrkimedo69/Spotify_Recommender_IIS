@@ -5,21 +5,10 @@ from datetime import datetime
 LOG_PATH = "logs/performance_log.json"
 
 def ensure_directories():
-    """
-    Ensure that required directories exist.
-    """
     if not os.path.exists("logs/"):
         os.makedirs("logs/")
 
 def log_performance(model_version, precision, input_distribution):
-    """
-    Log performance metrics to a JSON file.
-
-    Args:
-        model_version (str): Current version of the model.
-        precision (float): Similarity-based precision of the model.
-        input_distribution (dict): Distribution of input data.
-    """
     ensure_directories()
 
     log_entry = {

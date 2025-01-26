@@ -7,9 +7,6 @@ LOG_PERFORMANCE_PATH = "logs/performance.log"
 REPORT_OUTPUT_PATH = "reports/performance_report.pdf"
 
 def parse_performance_log(log_path):
-    """
-    Parse the performance log file to extract performance data.
-    """
     pattern = r"^\[(.*?)\] Version: (\S+), Precision: (\S+), Description: (.+)$"
     entries = []
 
@@ -34,16 +31,12 @@ def parse_performance_log(log_path):
         return pd.DataFrame()
 
 def generate_performance_report(log_path, output_path):
-    """
-    Generate a PDF report of model performance with a plot.
-    """
     performance_data = parse_performance_log(log_path)
 
     if performance_data.empty:
         print("No performance data available to generate a report.")
         return
 
-    # Generate a plot of performance over versions
     versions = performance_data['version']
     precision = performance_data['precision']
 
@@ -63,21 +56,18 @@ def generate_performance_report(log_path, output_path):
 
     print(f"Plot saved: {plot_path}")
 
-    # Generate a PDF report
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
     pdf.cell(0, 10, "Model Performance Report", ln=True, align='C')
     pdf.ln(10)
 
-    # Add data to PDF
     for index, entry in performance_data.iterrows():
         pdf.cell(0, 10, f"Version: {entry['version']} | Precision: {entry['precision']:.2f}", ln=True)
         pdf.cell(0, 10, f"Description: {entry['description']}", ln=True)
         pdf.cell(0, 10, f"Timestamp: {entry['timestamp']}", ln=True)
         pdf.ln(5)
 
-    # Add the plot to the PDF
     pdf.add_page()
     pdf.cell(0, 10, "Performance Plot", ln=True, align='C')
     pdf.image(plot_path, x=10, y=30, w=190)

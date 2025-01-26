@@ -1,9 +1,9 @@
 import os
 import pickle
+import numpy as np
 import json
 from datetime import datetime
 
-# Paths
 MODEL_DIR = "model_store/"
 LOG_PATH = "logs/model_version.log"
 LOG_PERFORMANCE_PATH = os.path.abspath("logs/performance.log")
@@ -21,24 +21,18 @@ def log_performance(version, precision, description):
     print(f"Performance logged: {log_entry}")
 
 def ensure_directories():
-    """
-    Ensure that required directories for model storage exist.
-    """
     if not os.path.exists(MODEL_DIR):
         os.makedirs(MODEL_DIR)
     if not os.path.exists("logs/"):
         os.makedirs("logs/")
 
-# Function to save model with versioning
 def save_model(model, version, description, dataset_version, directory="model_store"):
     ensure_directories()
 
-    # Save the model
     model_path = os.path.join(directory, f"model_{version}.pkl")
     with open(model_path, "wb") as f:
         pickle.dump(model, f)
 
-    # Save metadata
     metadata = {
         "version": version,
         "description": description,
@@ -54,41 +48,24 @@ def save_model(model, version, description, dataset_version, directory="model_st
     print(f"Metadata saved: {metadata_path}")
 
 def log_model_version(version, description, model_path):
-    """
-    Log model version details to a file.
-    """
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     log_entry = f"[{timestamp}] Version: {version}, Description: {description}, Path: {model_path}\n"
 
     with open(LOG_PATH, 'a') as log_file:
         log_file.write(log_entry)
 
-# Function to check if retraining is needed
 def check_model_retraining(data_changes, threshold=1):
-    """
-    Provjerava trebaju li podaci pokrenuti ponovno treniranje modela.
 
-    Args:
-        data_changes (dict): Rječnik detektiranih promjena po stupcima i metrikama.
-        threshold (int): Prag broja promjena za pokretanje retrainanja.
+    if not data_changes:
+        return False
 
-    Returns:
-        bool: True ako model treba ponovno trenirati, False inače.
-    """
-    # Broji ukupan broj promjena u svim stupcima
-    total_changes = sum(len(metrics) for metrics in data_changes.values())
-
-    # Ako broj promjena prelazi prag, pokreće se ponovno treniranje
+    total_changes = sum(
+        len(metrics) if isinstance(metrics, (list, np.ndarray)) else 1
+        for metrics in data_changes.values()
+    )
     return total_changes > threshold
 
-# Function to load the latest model
 def load_latest_model():
-    """
-    Load the latest model from the model store along with its metadata.
-
-    Returns:
-        tuple: Loaded model and its metadata.
-    """
     ensure_directories()
     models = [f for f in os.listdir(MODEL_DIR) if f.endswith('.pkl')]
 
@@ -96,7 +73,6 @@ def load_latest_model():
         print("No models found in the model store.")
         return None, None
 
-    # Sort by timestamp in the filename
     models.sort(reverse=True)
     latest_model_name = models[0]
     latest_version = latest_model_name.split('_')[1].split('.')[0]
@@ -112,11 +88,7 @@ def load_latest_model():
     print(f"Loaded latest model: {latest_model_path}")
     return model, metadata
 
-# Function to load a specific model version
 def load_latest_model():
-    """
-    Load the latest model and its metadata from the model store.
-    """
     ensure_directories()
     models = [f for f in os.listdir(MODEL_DIR) if f.endswith('.pkl')]
 
@@ -124,7 +96,6 @@ def load_latest_model():
         print("No models found in the model store.")
         return None, None
 
-    # Sort models by their modification time
     models.sort(key=lambda x: os.path.getmtime(os.path.join(MODEL_DIR, x)), reverse=True)
 
     for model_file in models:
@@ -149,32 +120,19 @@ def load_latest_model():
     print("No valid models with metadata found.")
     return None, None
 def load_model(version):
-    """
-    Load a specific model and its metadata based on version.
-
-    Args:
-        version (str): The version of the model to load (e.g., "1.1").
-
-    Returns:
-        tuple: (model, metadata) - Loaded model and its metadata.
-    """
     ensure_directories()
-    
-    # Define paths
+
     model_path = os.path.join(MODEL_DIR, f"model_{version}.pkl")
     metadata_path = os.path.join(MODEL_DIR, f"metadata_{version}.json")
 
-    # Check if files exist
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"Model file not found for version {version}: {model_path}")
     if not os.path.exists(metadata_path):
         raise FileNotFoundError(f"Metadata file not found for version {version}: {metadata_path}")
 
-    # Load model
     with open(model_path, 'rb') as f:
         model = pickle.load(f)
 
-    # Load metadata
     with open(metadata_path, 'r') as f:
         metadata = json.load(f)
 
@@ -185,15 +143,12 @@ def load_model(version):
 if __name__ == "__main__":
     ensure_directories()
 
-    # Spremanje modela verzije 1.0
     dummy_model_v1 = {"example": "This is version 1.0 of the model."}
     save_model(dummy_model_v1, version="1.0", description="Initial version of the model.")
 
-    # Spremanje modela verzije 1.1
     dummy_model_v1_1 = {"example": "This is version 1.1 of the model."}
     save_model(dummy_model_v1_1, version="1.1", description="Updated version of the model.")
 
-    # Učitavanje specifične verzije modela
     model_v1_1, metadata_v1_1 = load_model("1.1")
     print(f"Loaded model version {metadata_v1_1['version']} metadata: {metadata_v1_1}")
 
