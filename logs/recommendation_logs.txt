@@ -1,71 +1,71 @@
 
-Search Artist: eminem, Search Song: 
+Search Artist: , Search Song: Shape of You
 ================================================================================
 
 Cosine Similarity Recommendations:
 --------------------------------------------------
 | Name                           | Artists                                  | Popularity |
 --------------------------------------------------
-| Big Time Sensuality            | Björk                                    | 0.44 |
-| Otra Noche (Another Night)     | Proyecto Uno                             | 0.50 |
-| Rolling in the Deep            | Adele                                    | 0.75 |
-| Rolling In The Deep            | Adele                                    | 0.62 |
-| Latch                          | Disclosure, Sam Smith                    | 0.70 |
-| Either Hated Or Ignored        | $uicideBoy$                              | 0.61 |
-| Payphone                       | Maroon 5, Wiz Khalifa                    | 0.74 |
-| That Was Your Mother (with Goo | Paul Simon, Good Rockin' Doopsie, The Tw | 0.45 |
-| FFYL                           | Quinn XCII                               | 0.57 |
-| When U Love Somebody           | Fruit Bats                               | 0.58 |
+| Time to Glide                  | T-Dre, Delux, Cali Life Style            | 0.36 |
+| Hut Sut Song                   | Luis Rovira                              | 0.00 |
+| Goodies (feat. Petey Pablo)    | Ciara, Petey Pablo                       | 0.67 |
+| He Got Game                    | Public Enemy, Stephen Stills             | 0.52 |
+| Quisiera Ser Una Lágrima       | Los Traileros Del Norte                  | 0.53 |
+| Hot Dog!                       | They Might Be Giants (For Kids)          | 0.54 |
+| You Reposted in the Wrong Neig | Shokk                                    | 0.62 |
+| You Tell Me                    | Johnny Cash                              | 0.16 |
+| Mi Sangre Prisionera           | Los Tigres Del Norte                     | 0.53 |
+| Feel It Boy                    | Beenie Man, Janet Jackson                | 0.51 |
 
 Hierarchical Clustering Recommendations:
 --------------------------------------------------
 | Name                           | Artists                                  | Popularity |
 --------------------------------------------------
-| 'Till I Collapse               | Eminem, Nate Dogg                        | 0.84 |
-| Call You Mine                  | The Chainsmokers, Bebe Rexha             | 0.81 |
-| Girl on Fire                   | Alicia Keys                              | 0.77 |
-| My Kind of Woman               | Mac DeMarco                              | 0.74 |
-| Clarity                        | Zedd, Foxes                              | 0.74 |
-| Company                        | Justin Bieber                            | 0.72 |
-| Fool's Gold                    | One Direction                            | 0.71 |
-| Resonance                      | Home                                     | 0.71 |
-| ADHD                           | Joyner Lucas                             | 0.71 |
-| She Hates Me                   | Puddle Of Mudd                           | 0.70 |
+| Se Te Nota (with Guaynaa)      | Lele Pons, Guaynaa                       | 0.92 |
+| Ride It                        | Regard                                   | 0.87 |
+| Shape of You                   | Ed Sheeran                               | 0.85 |
+| HOLIDAY                        | Lil Nas X                                | 0.85 |
+| Tap In                         | Saweetie                                 | 0.82 |
+| The Real Slim Shady            | Eminem                                   | 0.80 |
+| Chill Bill (feat. J. Davi$ & S | Rob $tone, J. Davi$, Spooks              | 0.78 |
+| 1400 / 999 Freestyle           | Trippie Redd, Juice WRLD                 | 0.78 |
+| TOES (feat. Lil Baby & Moneyba | DaBaby, Lil Baby, Moneybagg Yo           | 0.77 |
+| Boys Ain't Shit                | SAYGRACE                                 | 0.76 |
 
 T-SNE Recommendations:
 --------------------------------------------------
 | Name                           | Artists                                  | Popularity |
 --------------------------------------------------
-| DAY TRIPPER                    | YELLOW MAGIC ORCHESTRA, Norio Yoshizawa  | 0.32 |
-| Amplifier                      | Imran Khan                               | 0.64 |
-| Wasted (feat. Plies)           | Gucci Mane, Plies                        | 0.52 |
-| My Dad's Gone Crazy            | Eminem, Hailie Jade                      | 0.60 |
-| Se Acabo El Amor               | Adolescent's Orquesta                    | 0.62 |
-| Centro Di Gravità Permanente - | Franco Battiato                          | 0.58 |
-| Homicide (feat. Eminem)        | Logic, Eminem                            | 0.75 |
-| Stop Your Sobbing              | The Kinks                                | 0.50 |
-| Cool Dry Place                 | Traveling Wilburys                       | 0.38 |
-| Diesel Smoke, Dangerous Curves | Red Simpson                              | 0.37 |
+| Shape of You                   | Ed Sheeran                               | 0.85 |
+| Time to Glide                  | T-Dre, Delux, Cali Life Style            | 0.36 |
+| The Payback                    | James Brown                              | 0.58 |
+| Boys Say Go! - 2006 Remaster   | Depeche Mode                             | 0.25 |
+| We No Speak Americano          | Yolanda Be Cool, DCup                    | 0.46 |
+| La Ética                       | Los Tigrillos                            | 0.52 |
+| Picture Me Rollin'             | 2Pac, Danny Boy, Syke, C-PO              | 0.53 |
+| American Ghost Dance - Remaste | Red Hot Chili Peppers                    | 0.35 |
+| Toma                           | Lil Jon, Pitbull                         | 0.47 |
+| Camelot                        | NLE Choppa                               | 0.75 |
 
 Comparison Results:
 --------------------------------------------------
-                                              Cosine Similarity Hierarchical Clustering                                     T-SNE
-                                            Big Time Sensuality        'Till I Collapse                               DAY TRIPPER
-                                     Otra Noche (Another Night)           Call You Mine                                 Amplifier
-                                            Rolling in the Deep            Girl on Fire                      Wasted (feat. Plies)
-                                            Rolling In The Deep        My Kind of Woman                       My Dad's Gone Crazy
-                                                          Latch                 Clarity                          Se Acabo El Amor
-                                        Either Hated Or Ignored                 Company Centro Di Gravità Permanente - Remastered
-                                                       Payphone             Fool's Gold                   Homicide (feat. Eminem)
-That Was Your Mother (with Good Rockin' Doopsie & The Twisters)               Resonance                         Stop Your Sobbing
-                                                           FFYL                    ADHD                            Cool Dry Place
-                                           When U Love Somebody            She Hates Me            Diesel Smoke, Dangerous Curves
+                                     Cosine Similarity              Hierarchical Clustering                             T-SNE
+                                         Time to Glide            Se Te Nota (with Guaynaa)                      Shape of You
+                                          Hut Sut Song                              Ride It                     Time to Glide
+                           Goodies (feat. Petey Pablo)                         Shape of You                       The Payback
+                                           He Got Game                              HOLIDAY      Boys Say Go! - 2006 Remaster
+                              Quisiera Ser Una Lágrima                               Tap In             We No Speak Americano
+                                              Hot Dog!                  The Real Slim Shady                          La Ética
+You Reposted in the Wrong Neighborhood I Glue70 Mashup Chill Bill (feat. J. Davi$ & Spooks)                Picture Me Rollin'
+                                           You Tell Me                 1400 / 999 Freestyle American Ghost Dance - Remastered
+                                  Mi Sangre Prisionera TOES (feat. Lil Baby & Moneybagg Yo)                              Toma
+                                           Feel It Boy                      Boys Ain't Shit                           Camelot
 --------------------------------------------------------------------------------
 
 Precision Scores:
 --------------------------------------------------
 Cosine Similarity Precision: 1.00
 Hierarchical Clustering Precision: 0.80
-T-SNE Precision: 1.00
+T-SNE Precision: 0.60
 
 ================================================================================
